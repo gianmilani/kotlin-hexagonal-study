@@ -3,14 +3,15 @@ package br.study.hexagonal.config
 import br.study.hexagonal.adapters.`in`.consumer.CostumerMessage
 import org.apache.kafka.clients.consumer.ConsumerConfig.*
 import org.apache.kafka.common.serialization.StringDeserializer
-import org.apache.kafka.common.serialization.StringSerializer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.annotation.EnableKafka
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
+import org.springframework.kafka.listener.ContainerProperties
 import org.springframework.kafka.support.serializer.JsonDeserializer
+
 
 @EnableKafka
 @Configuration
@@ -22,18 +23,26 @@ class KafkaConsumerConfig {
         val config = mutableMapOf<String, Any>()
         config[BOOTSTRAP_SERVERS_CONFIG] = "localhost:9092"
         config[GROUP_ID_CONFIG] = "hexags"
-        config[KEY_DESERIALIZER_CLASS_CONFIG] = StringSerializer::class.java
+        config[KEY_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
         config[VALUE_DESERIALIZER_CLASS_CONFIG] = JsonDeserializer::class.java
         config[AUTO_OFFSET_RESET_CONFIG] = "earliest"
-        return DefaultKafkaConsumerFactory(config, StringDeserializer(), JsonDeserializer(CostumerMessage::class.java))
+        return DefaultKafkaConsumerFactory(
+            config,
+            StringDeserializer(),
+            JsonDeserializer(
+                CostumerMessage::class.java
+            )
+        )
     }
 
+
     @Bean
-    fun kafkaListenerContainerFactory(
-        consumerFactory: ConsumerFactory<String, CostumerMessage>
-    ): ConcurrentKafkaListenerContainerFactory<String, CostumerMessage> {
+    fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, CostumerMessage> {
         val factory = ConcurrentKafkaListenerContainerFactory<String, CostumerMessage>()
-        factory.consumerFactory = consumerFactory
+        factory.consumerFactory = consumerFactory()
+        factory.isBatchListener = true
+        factory.containerProperties.ackMode = ContainerProperties.AckMode.MANUAL
         return factory
     }
+
 }

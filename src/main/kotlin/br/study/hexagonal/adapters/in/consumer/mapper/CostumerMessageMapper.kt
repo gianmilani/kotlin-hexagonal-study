@@ -7,5 +7,8 @@ import br.study.hexagonal.application.core.domain.Customer
 fun CostumerMessage.toCostumer() =
     Customer(
         name = name,
-        cpf = cpf
-    )
+        cpf = cpf,
+        isValidCpf = isValidCpf
+    ).apply {
+        id = this@toCostumer.id
+    }

@@ -4,8 +4,8 @@ spring:
       host: localhost
       port: 27017
       authentication-database: ${AUTH_ADM_DB:admin}
-      username: ${USERNAME:root}
-      password: ${PASSWORD:example}
+      username: ${USR_MONGODB:root}
+      password: ${PWD_MONGODB:example}
       database: ${DB_APP:hexagonal}
 
 study:
